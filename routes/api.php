@@ -150,6 +150,10 @@ Route::middleware(['auth:sanctum'])->group(function(){
             //update the color
             Route::post("updateColor",[ColorChossController::class,'UpdateColor']);
 
+            //get filter order
+            Route::post("ArrivedOrder/filter",[OrderController::class,'FilterArrivedOrder']);
+            Route::post("RejectedOrder/filter",[OrderController::class,'FilterRejectedOrder']);
+
 
 
         });

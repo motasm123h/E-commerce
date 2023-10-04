@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Notifications\NewNotification;
 use App\Notifications\ResultOrderNotification;
 use App\Notifications\LocationOrderNotification;
+use Carbon\Carbon;
 
 
 class OrderController extends Controller
@@ -27,7 +28,7 @@ class OrderController extends Controller
 
         $totalAmount = 0 ;
         foreach($cartItems as $item){
-            $totalAmount += $item->Quntity * $item->Unit_Price;
+            $totalAmount += $item->Quntity * $item->Unit_Price_After_Discount;
         }
         $products = json_encode($cartItems);
         $atter = $request->validate([
@@ -69,9 +70,11 @@ class OrderController extends Controller
     
     public function getAlOrder(){
         $userOrders = Order::all();
+      
         foreach($userOrders as $order){
             $order->products = json_decode($order['products'], true);
         }
+
         return response()->json([
             'message' => $userOrders
         ]);
@@ -177,6 +180,40 @@ class OrderController extends Controller
         return response()->json([
             'orders' => $orders
         ]);
+    }
+
+    public function FilterArrivedOrder(){
+        $oneMonthAgo = Carbon::now()->subMonth();
+        $userOrders = Order::where([
+            ['created_at', '<', $oneMonthAgo],
+            ['location','Arrived'],
+        ])->get();
+
+        foreach($userOrders as $userOrder){
+            $userOrder->delete();
+        }
+        
+        return response()->json([
+            'orders' => 'done',
+        ]);
+
+    }
+    
+    public function FilterRejectedOrder(){
+        $oneWeekAgo = Carbon::now()->subWeek();
+        $rejectOrders = Order::where([
+            ['created_at', '<', $oneWeekAgo],
+            ['status','rejected'],
+        ])->get();
+
+        foreach($rejectOrders as $rejectOrder){
+            $rejectOrder->delete();
+        }
+        
+        return response()->json([
+            'orders' => 'done',
+        ]);
+
     }
 
 

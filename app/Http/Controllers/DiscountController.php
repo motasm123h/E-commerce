@@ -209,7 +209,7 @@ class DiscountController extends Controller
         $CatProducts = Product::where('category_id',$category_id)->get()->toArray(); 
         $sections = $category->sections()->get();
         if($sections){
-
+            
             $products = [];
             foreach ($sections as $section) {
                 $products = array_merge($products, $section->getProducts()->get()->toArray());
@@ -225,7 +225,7 @@ class DiscountController extends Controller
         else{
             $products = Product::where('category_id',$category_id)->get(); 
             foreach($products as $product){
-                $discount = Discount::where(['product_id',$product->id])->first();
+                $discount = Discount::where(['product_id',$product['id']])->first();
                 if($discount){
                 $discount->delete();
                 }
@@ -242,45 +242,46 @@ class DiscountController extends Controller
         ]);
     }
 
-    public function deleteDiscountOnSection($section_id){
-        $section=Section::where('id',$section_id)->first();
-        $sectors =$section->sectors()->get();
-        if($sectors){
+    public function deleteDiscountOnSection($section_id) {
+        $section = Section::where('id', $section_id)->first();
+        $sectors = $section->sectors()->get();
 
-        $products = [];
-        foreach ($sectors as $sector) {
-            $products = array_merge($products, $sector->getProducts()->get()->toArray());
-        }
-        foreach($products as $product){
+        if (empty($sectors)) {
+            $products = [];
 
-            $discount = Discount::where('product_id',$product['id'])->first();
-            if($discount){
-            $discount->delete();
+            foreach ($sectors as $sector) {
+                $products = array_merge($products, $sector->getProducts()->get()->toArray());
+            }
+
+            foreach ($products as $product) {
+                $discount = Discount::where('product_id', $product['id'])->first();
+
+                if ($discount) {
+                    $discount->delete();
+                }
+            }
+        } else {
+            $products = Product::where('section_id', $section_id)->get();
+
+            foreach ($products as $product) {
+                $discount = Discount::where('product_id', $product->id)->first();
+
+                if ($discount) {
+                    $discount->delete();
+                }
             }
         }
-        
-        }
 
-        else{
-            $products = Product::where('section_id',$section_id)->get();
-            foreach($products as $product){
-
-            $discount = Discount::where(['product_id',$product->id])->first();
-            if($discount){
-            $discount->delete();
-            }
-        }
-        }
-        if($products){
+        if (empty($products)) {
             return response()->json([
-                'message' => 'No products founds',
+                'message' => 'No products found',
             ]);
         }
 
         return response()->json([
-            'message' => 'delete Success',
+            'message' => 'Delete Success',
         ]);
-    }
+}
 
     public function deleteDiscountOnSector($sector_id){
         $sector = Sector::where('id',$sector_id)->first();

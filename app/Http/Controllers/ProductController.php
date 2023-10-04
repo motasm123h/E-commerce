@@ -20,7 +20,6 @@ class ProductController extends Controller
         $this->query = Product::query();
     }
 
-    //this is for applay discount
     function applyDiscountLogic($product) {
         if (isset($product->discounts[0])) {
             $discountedPrice = $product->price - (($product->price * $product->discounts[0]->percentage_off) / 100);
@@ -32,45 +31,56 @@ class ProductController extends Controller
         }
     }
     
-    //this is for unset discount
     function unsetDiscount($product)
     {
         unset($product->discounts);
     }
 
-//for addmin to create product for category
     public function ceateproductFroCategory(Request $request , $category_id){
-        //    $imageNames = [];
         $atter = $request->validate([
             'Type' =>['required'],
             'price' =>['required'],
             'name' =>['required'],
             'image' =>'required|image|mimes:jpg,png|max:2048',
-            'Availabilty' =>['required'],
+            // 'Availabilty' =>['required'],
             'product_code' =>['required'],
             'Brand' =>['required'],
             'desc' =>['required'],
             'Quntity' =>['required'],
-            // 'images' => 'required',
-            // 'images.*' => 'image|mimes:jpg,png|max:2048',
         ]);
         
         $imgName = time().'-'.auth()->user()->name.'.'.$request->image->extension();    
         $ImagePath = $request->image->move(public_path('images'),$imgName);
-        
+        if($atter['Quntity'] == 0){
+          $product = Product::create([
+            'category_id' => $category_id,
+            'Type'=>$atter['Type'],
+            'price' =>$atter['price'],
+            'name' =>$atter['name'],
+            'image' =>$imgName,
+            'Availabilty' =>'Out Of Stock',
+            'product_code' =>$atter['product_code'],
+            'Brand' =>$atter['Brand'],
+            'desc' =>$atter['desc'],
+            'Quntity' =>$atter['Quntity'],
+        ]);  
+
+        }
+       else{
+
         $product = Product::create([
             'category_id' => $category_id,
             'Type'=>$atter['Type'],
             'price' =>$atter['price'],
             'name' =>$atter['name'],
             'image' =>$imgName,
-            'Availabilty' =>$atter['Availabilty'],
+            'Availabilty' =>'In Stock',
             'product_code' =>$atter['product_code'],
             'Brand' =>$atter['Brand'],
             'desc' =>$atter['desc'],
-            // 'other_images'=>$imageNames,
             'Quntity' =>$atter['Quntity'],
         ]);
+       }
 
         $files = $request->file('images');
         $filesCount = is_array($files) ? count($files) : ($files ? 1 : 0);
@@ -97,7 +107,11 @@ class ProductController extends Controller
             }
         }
         
-
+        if($atter['Quntity'] ==  0){
+            $product->update(
+                // 'Availabilty' => 
+            );
+        }
         return response()->json([
             'product' => $product,
         ]);
@@ -111,7 +125,7 @@ class ProductController extends Controller
             'price' =>['required'],
             'name' =>['required'],
             'image' =>'required|image|mimes:jpg,png|max:2048',
-            'Availabilty' =>['required'],
+            // 'Availabilty' =>['required'],
             'product_code' =>['required'],
             'Brand' =>['required'],
             'desc' =>['required'],
@@ -126,18 +140,34 @@ class ProductController extends Controller
         
 
 
-        $product = Product::create([
-            'section_id' => $section_id,
+        if($atter['Quntity'] == 0){
+          $product = Product::create([
+            'category_id' => $section_id,
             'Type'=>$atter['Type'],
             'price' =>$atter['price'],
             'name' =>$atter['name'],
             'image' =>$imgName,
-            'Availabilty' =>$atter['Availabilty'],
+            'Availabilty' =>'Out Of Stock',
             'product_code' =>$atter['product_code'],
             'Brand' =>$atter['Brand'],
             'desc' =>$atter['desc'],
             'Quntity' =>$atter['Quntity'],
-        ]);
+        ]);  
+        }
+        else{
+            $product = Product::create([
+                'category_id' => $section_id,
+                'Type'=>$atter['Type'],
+                'price' =>$atter['price'],
+                'name' =>$atter['name'],
+                'image' =>$imgName,
+                'Availabilty' =>'In Stock',
+                'product_code' =>$atter['product_code'],
+                'Brand' =>$atter['Brand'],
+                'desc' =>$atter['desc'],
+                'Quntity' =>$atter['Quntity'],
+            ]);
+       }
 
        $files = $request->file('images');
         $filesCount = is_array($files) ? count($files) : ($files ? 1 : 0);
@@ -179,13 +209,11 @@ class ProductController extends Controller
             'price' =>['required'],
             'name' =>['required'],
             'image' =>'required|image|mimes:jpg,png|max:2048',
-            'Availabilty' =>['required'],
+            // 'Availabilty' =>['required'],
             'product_code' =>['required'],
             'Brand' =>['required'],
             'desc' =>['required'],
             'Quntity' =>['required'],
-            // 'images' => 'required',
-            // 'images.*' => 'image|mimes:jpg,png|max:2048',
         ]);
         
         $imgName = time().'-'.auth()->user()->name.'.'.$request->image->extension();    
@@ -205,19 +233,34 @@ class ProductController extends Controller
 
         } 
 
-        $product = Product::create([
-            'sector_id' => $sector_id,
+        if($atter['Quntity'] == 0){
+          $product = Product::create([
+            'category_id' => $sector_id,
             'Type'=>$atter['Type'],
             'price' =>$atter['price'],
             'name' =>$atter['name'],
             'image' =>$imgName,
-            'Availabilty' =>$atter['Availabilty'],
+            'Availabilty' =>'Out Of Stock',
             'product_code' =>$atter['product_code'],
             'Brand' =>$atter['Brand'],
             'desc' =>$atter['desc'],
             'Quntity' =>$atter['Quntity'],
-        ]);
-
+        ]);  
+        }
+        else{
+            $product = Product::create([
+                'category_id' => $sector_id,
+                'Type'=>$atter['Type'],
+                'price' =>$atter['price'],
+                'name' =>$atter['name'],
+                'image' =>$imgName,
+                'Availabilty' =>'In Stock',
+                'product_code' =>$atter['product_code'],
+                'Brand' =>$atter['Brand'],
+                'desc' =>$atter['desc'],
+                'Quntity' =>$atter['Quntity'],
+            ]);
+       }
 
 
        $files = $request->file('images');
@@ -251,11 +294,9 @@ class ProductController extends Controller
     }
 
     //this is for get New product
-    public function getNewProduct($sortType = null)
-    {
-        $cacheKey = 'new_products';
-        $products = Cache::remember($cacheKey, 60, function () use ($sortType) {
-            $query = Product::getNewProduct($this->query);
+    public function getNewProduct($sortType = null){
+    
+        $query = Product::getNewProduct($this->query);
 
             if ($sortType == 'asc' || $sortType == 'desc') {
                 $query->orderBy('name', $sortType);
@@ -269,8 +310,8 @@ class ProductController extends Controller
                 $query->orderByDesc('created_at');
             }
 
-            return $query->paginate(10);
-        });
+            $products = $query->paginate(10);
+       
 
         foreach ($products as $product) {
             $this->applyDiscountLogic($product);
@@ -280,49 +321,11 @@ class ProductController extends Controller
         return response()->json([
             'products' => $products,
         ]);
-}
-
-//this is for get New product
-    // public function getOldProduct($sortType=null){
-    //    $cacheKey = 'old_products_';
-
-    //  $products = Cache::remember($cacheKey, 60, function () use ($sortType) {
-    //     $query = Product::getNewProduct($this->query);
-        
-
-    //         if ($sortType == 'asc' || $sortType == 'desc') {
-    //             $query->orderBy('name', $sortType);
-    //         } else if ($sortType == 'Hprice') {
-    //             $query->orderBy('price', 'desc');
-    //         } else if ($sortType == 'Lprice') {
-    //             $query->orderBy('price', 'asc');
-    //         } else if ($sortType == 'OLD') {
-    //             $query->orderBy('created_at');
-    //         } else if ($sortType == 'USED') {
-    //             $query->orderByDesc('created_at');
-    //         }
-
-    //         return $query->paginate(10);
-    //     });
-
-    //     foreach ($products as $product) {
-    //         $this->applyDiscountLogic($product);
-    //     }
-
-    //     foreach ($products as $product) {
-    //         $this->unsetDiscount($product);
-    //     }
-
-    //     return response()->json([
-    //         'products' => $products,
-    //     ]);
-    // }
+    }
 
     // GET THE USED Products
     public function getUsedProduct($sortType=null){
-        $cacheKey = 'used_products_';
-
-        $products = Cache::remember($cacheKey, 60, function () use ($sortType) {
+        
             $query = Product::getUsedProduct($this->query);
 
             if ($sortType == 'asc' || $sortType == 'desc') {
@@ -337,8 +340,8 @@ class ProductController extends Controller
                 $query->orderByDesc('created_at');
             }
 
-            return $query->paginate(10);
-        });
+            $products = $query->paginate(10);
+        
 
         foreach ($products as $product) {
             $this->applyDiscountLogic($product);
@@ -355,140 +358,132 @@ class ProductController extends Controller
 
     //this is for Discount product
   public function getDiscountedProducts($sortType = null)
-{
-    $cacheKey = 'discounted_products_';
+    {
+        // $cacheKey = 'discounted_products_';
 
-    $productsWithDiscount = Cache::remember($cacheKey, 60, function () use ($sortType) {
         $query = Product::getDiscontinuedProduct($this->query);
 
-        if ($sortType == 'asc' || $sortType == 'desc') {
-            $query->orderBy('name', $sortType);
-        } else if ($sortType == 'Hprice') {
-            $query->orderBy('price', 'desc');
-        } else if ($sortType == 'Lprice') {
-            $query->orderBy('price', 'asc');
-        } else if ($sortType == 'OLD') {
-            $query->orderBy('created_at');
-        } else if ($sortType == 'USED') {
-            $query->orderByDesc('created_at');
+            if ($sortType == 'asc' || $sortType == 'desc') {
+                $query->orderBy('name', $sortType);
+            } else if ($sortType == 'Hprice') {
+                $query->orderBy('price', 'desc');
+            } else if ($sortType == 'Lprice') {
+                $query->orderBy('price', 'asc');
+            } else if ($sortType == 'OLD') {
+                $query->orderBy('created_at');
+            } else if ($sortType == 'USED') {
+                $query->orderByDesc('created_at');
+            }
+
+            $productsWithDiscount = $query->paginate(10);
+        
+        foreach ($productsWithDiscount as $product) {
+            $this->applyDiscountLogic($product);
         }
 
-        return $query->paginate(10);
-    });
+        foreach ($productsWithDiscount as $product) {
+            $this->unsetDiscount($product);
+        }
 
-    foreach ($productsWithDiscount as $product) {
-        $this->applyDiscountLogic($product);
-    }
-
-    foreach ($productsWithDiscount as $product) {
-        $this->unsetDiscount($product);
-    }
-
-    return response()->json([
-        'products' => $productsWithDiscount,
-    ]);
+        return response()->json([
+            'products' => $productsWithDiscount,
+        ]);
 }
 
     //GET product DEBENDS ON section Or get the sector if the section have sector
     public function getProductBySection($section_id, $sortType = null)
-{
-    $section = Section::where('id', $section_id)->first();
+    {
+        $section = Section::where('id', $section_id)->first();
 
-        if (!$section) {
-            return response()->json([
-                'message' => 'Section not found'
-            ]);
-        }
-
-        if ($section->sectors->isNotEmpty()) {
-            return response()->json([
-                'sector' => $section->sectors()->get(),
-            ]);
-        }
-
-      $products = cache()->remember('products_' . $section_id , 60 , function () use ($section_id, $sortType) {
-        $query = Product::getProductByhereSection($this->query, $section_id);
-
-        if ($sortType == 'desc' || $sortType == 'asc') {
-            $query->orderBy('name', $sortType);
-        } elseif ($sortType == 'Hprice') {
-            $query->orderBy('price', 'desc');
-        } elseif ($sortType == 'Lprice') {
-            $query->orderBy('price', 'asc');
-        } elseif ($sortType == 'OLD') {
-            $query->orderBy('created_at');
-        } elseif ($sortType == 'NEW') {
-            $query->orderByDesc('created_at');
-        }
-
-        $products = $query->paginate(10);
-
-        foreach ($products as $product) {
-            $this->applyDiscountLogic($product);
-        }
-
-        foreach ($products as $product) {
-            $this->unsetDiscount($product);
-        }
-
-        return $products;
-    });
-
-    return response()->json([
-        'products' => $products,
-    ]);
-}
-
-public function getProductBySector($sector_id, $sortType = null)
-{
-    $sector = Sector::where('id', $sector_id)->first();
-    
-    if (!$sector) {
-        return response()->json([
-            'message' => 'No such sector'
-        ]);
-    } else {
-        if ($sector->getProducts->isEmpty()) {
-            return response()->json([
-                'message' => 'No products for this sector',
-            ]);
-        }
-        
-        $products = cache()->remember('products_' . $sector_id ,60, function () use ($sector_id, $sortType) {
-            $query = Product::getProductBySector($this->query, $sector_id);
-            
-            if ($sortType == null) {
-                $query->paginate(10);
-            } elseif ($sortType == 'desc' || $sortType == 'asc') {
-                $query->orderBy('name', $sortType)->paginate(10);
-            } elseif ($sortType == 'Hprice') {
-                $query->orderBy('price', 'desc')->paginate(10);
-            } elseif ($sortType == 'Lprice') {
-                $query->orderBy('price', 'asc')->paginate(10);
-            } elseif ($sortType == 'OLD') {
-                $query->orderBy('created_at')->paginate(10);
-            } elseif ($sortType == 'NEW') {
-                $query->orderByDesc('created_at')->paginate(10);
+            if (!$section) {
+                return response()->json([
+                    'message' => 'Section not found'
+                ]);
             }
-            
-            $products = $query->get();
-            
+
+            if ($section->sectors->isNotEmpty()) {
+                return response()->json([
+                    'sector' => $section->sectors()->get(),
+                ]);
+            }
+
+            $query = Product::getProductByhereSection($this->query, $section_id);
+
+            if ($sortType == 'desc' || $sortType == 'asc') {
+                $query->orderBy('name', $sortType);
+            } elseif ($sortType == 'Hprice') {
+                $query->orderBy('price', 'desc');
+            } elseif ($sortType == 'Lprice') {
+                $query->orderBy('price', 'asc');
+            } elseif ($sortType == 'OLD') {
+                $query->orderBy('created_at');
+            } elseif ($sortType == 'NEW') {
+                $query->orderByDesc('created_at');
+            }
+
+            $products = $query->paginate(10);
+
             foreach ($products as $product) {
                 $this->applyDiscountLogic($product);
             }
-            
+
             foreach ($products as $product) {
                 $this->unsetDiscount($product);
             }
-            
-            return $products;
-        });
 
-        return response()->json([
-            'products' => $products,
-        ]);
+
+
+            return response()->json([
+                'products' => $products,
+            ]);
     }
-}
+
+    public function getProductBySector($sector_id, $sortType = null)
+    {
+        $sector = Sector::where('id', $sector_id)->first();
+        if (!$sector) {
+            return response()->json([
+                'message' => 'No such sector'
+            ]);
+        } else {
+            if ($sector->getProducts->isEmpty()) {
+                return response()->json([
+                    'message' => 'No products for this sector',
+                ]);
+            }
+
+            $query = Product::getProductBySector($this->query, $sector_id);
+                
+                if ($sortType == null) {
+                    $query->paginate(10);
+                } elseif ($sortType == 'desc' || $sortType == 'asc') {
+                    $query->orderBy('name', $sortType);
+                } elseif ($sortType == 'Hprice') {
+                    $query->orderBy('price', 'desc');
+                } elseif ($sortType == 'Lprice') {
+                    $query->orderBy('price', 'asc');
+                } elseif ($sortType == 'OLD') {
+                    $query->orderBy('created_at');
+                } elseif ($sortType == 'NEW') {
+                    $query->orderByDesc('created_at');
+                }
+                
+                $products = $query->paginate(10);
+                
+                foreach ($products as $product) {
+                    $this->applyDiscountLogic($product);
+                }
+                
+                foreach ($products as $product) {
+                    $this->unsetDiscount($product);
+                }
+                
+        
+            return response()->json([
+                'products' => $products,
+            ]);
+        }
+    }
     //this is for delete products
     public function deleteProduct($product_id){
         $product = Product::where('id',$product_id)->first();
@@ -537,7 +532,19 @@ public function getProductBySector($sector_id, $sortType = null)
 
     // public function getProductWithDetails($product_id)
     // {   
-    //     $product = Product::where('id', $product_id)->first();
+        
+    //     $product ;
+    //     $query = Product::where('id', $product_id)
+    //         ->select()
+    //         ->with(['discounts' => function ($query) {
+    //             $query->select('id','percentage_off','product_id');
+    //         }])
+    //         ->with(['images' => function ($query) {
+    //             $query->select('*');
+    //         }]);
+    //     $product = $query->get();
+
+
     //     if(!$product) {
     //         return response()->json([
     //             'product' => 'there is no product like this'
@@ -545,7 +552,7 @@ public function getProductBySector($sector_id, $sortType = null)
     //     }
     //     $section = $product->section()->first();
     //     if(!$section){
-    //         $products=Product::where('id','=',$product_id)
+    //         $product=Product::where('id','=',$product_id)
     //         ->select()
     //         ->with(['discounts' => function ($query) {
     //                 $query->select('id','percentage_off','product_id');
@@ -556,160 +563,118 @@ public function getProductBySector($sector_id, $sortType = null)
     //         ->get();
 
 
-    //         foreach($products as $product) 
-    //         {
-    //             $this->applyDiscountLogic($product);
-        
-    //         }
-    //         foreach($products as $product) 
-    //         {
-    //             $this->unsetDiscount($product);
-    //         }
-
+            
 
     //         return response()->json([
     //             'products'=>$product,
     //             ]);
     //     }
-    //     $category = $section->category()->first();
-
-    //     if($category['id'] == 1 || $category['id'] == 2){        
-    //         $products=Product::where('id','=',$product_id)
-    //         ->select()
-    //         ->with(['discounts' => function ($query) {
-    //                 $query->select('id','percentage_off','product_id');
-    //             }])
-    //         ->with(['Details'=>function($query){
-    //                 $query->select('*');
-    //         }])
-    //         ->with(['images' => function ($query) {
-    //             $query->select('*');
-    //         }])    
-    //         ->get();
-
-
-    //         foreach($products as $product) 
-    //         {
-    //             $this->applyDiscountLogic($product);
         
-    //         }
-    //         foreach($products as $product) 
-    //         {
-    //             $this->unsetDiscount($product);
-    //         }
-
-
-    //         return response()->json([
-    //             'products'=>$product,
-    //             ]);
+    //     $category = $section->category()->first();
+        
+    //     if($category['id'] == 1 || $category['id'] == 2){        
+    
+    //         $query->with(['Details' => function ($query) {
+    //         $query->select('*');
+    //         }]);
+                  
     //     }
     //     if($category['id'] == 3){        
-    //         $products=Product::where('id','=',$product_id)
-    //         ->select()
-    //         ->with(['discounts' => function ($query) {
-    //                 $query->select('id','percentage_off','product_id');
-    //             }])
-    //         ->with(['MonitorDetails'=>function($query){
+            
+    //         $query->with(['MonitorDetails'=>function($query){
     //                 $query->select('*');
-    //         }])
-    //         ->with(['images' => function ($query) {
-    //             $query->select('*');
-    //         }])    
-    //         ->get();
+    //         }]);
 
-
-    //         foreach($products as $product) 
-    //         {
-    //             $this->applyDiscountLogic($product);
-        
-    //         }
-    //         foreach($products as $product) 
-    //         {
-    //             $this->unsetDiscount($product);
-    //         }
-
-
-    //         return response()->json([
-    //             'products'=>$product,
-    //             ]);
     //     }
-    //     else{
-    //         $products=Product::where('id','=',$product_id)
-    //         ->select()
-    //         ->with(['discounts' => function ($query) {
-    //                 $query->select('id','percentage_off','product_id');
-    //             }])
-    //         ->with(['images' => function ($query) {
-    //             $query->select('*');
-    //         }])    
-    //         ->get();
 
-
-    //         foreach($products as $product) 
-    //         {
-    //             $this->applyDiscountLogic($product);
+    //     $product = $query->get();
         
-    //         }
-    //         foreach($products as $product) 
-    //         {
-    //             $this->unsetDiscount($product);
-    //         }
-
-
-    //         return response()->json([
-    //             'products'=>$product,
-    //             ]);
-    //     }
-   
+        
+    //     return response()->json([
+    //         'products' => $product,
+    //     ]);
+        
     // }
 
-    public function getProductWithDetails($product_id)
-{   
-    $product = Product::where('id', $product_id)->first();
-    
-    if(!$product) {
-        return response()->json([
-            'product' => 'there is no product like this'
-        ]);
-    }
-    
-    $section = $product->section()->first();
-    $category = $section->category()->first();
-    
-    $query = Product::where('id', $product_id)
-        ->select()
-        ->with(['discounts' => function ($query) {
-            $query->select('id','percentage_off','product_id');
-        }])
-        ->with(['images' => function ($query) {
-            $query->select('*');
-        }]);
-    
-    if($category['id'] == 1 || $category['id'] == 2){
-        $query->with(['Details' => function ($query) {
-            $query->select('*');
-        }]);
-    }
-    elseif($category['id'] == 3){
-        $query->with(['MonitorDetails' => function ($query) {
-            $query->select('*');
-        }]);
-    }
-    
-    $products = $query->get();
-    
-    foreach($products as $product) {
-        $this->applyDiscountLogic($product);
-    }
-    
-    foreach($products as $product) {
-        $this->unsetDiscount($product);
-    }
-    
-    return response()->json([
-        'products' => $products,
-    ]);
-}
+//     public function getProductWithDetails($product_id)
+// {   
+//     $product ;
+//     $query = Product::where('id', $product_id)
+//         ->select()
+//         ->with(['discounts' => function ($query) {
+//             $query->select('id','percentage_off','product_id');
+//         }])
+//         ->with(['images' => function ($query) {
+//             $query->select('*');
+//         }]);
 
+//         $product = $query->get();
+    
+//     if(!$product) {
+//         return response()->json([
+//             'product' => 'there is no product like this'
+//         ]);
+//     }
+//     // if(){}
+    
+//     $section = $product->section()->first();
+//     $category = $section->category()->first();
+    
+    
+//     if($category['id'] == 1 || $category['id'] == 2){
+//         $query->with(['Details' => function ($query) {
+//             $query->select('*');
+//         }]);
+//     }
+//     elseif($category['id'] == 3){
+//         $query->with(['MonitorDetails' => function ($query) {
+//             $query->select('*');
+//         }]);
+//     }
+    
+//     $products = $query->get();
+    
+//     foreach($products as $product) {
+//         $this->applyDiscountLogic($product);
+//     }
+    
+//     foreach($products as $product) {
+//         $this->unsetDiscount($product);
+//     }
+    
+//     return response()->json([
+//         'products' => $products,
+//     ]);
+// }
+
+    public function getProductWithDetails($product_id){   
+        $product ;
+        $query = Product::where('id', $product_id)
+            ->select('*')
+            ->with(['discounts' => function ($query) {
+                $query->select('id','percentage_off','product_id');
+            }])
+            ->with(['images' => function ($query) {
+                $query->select('*');
+            }]);
+
+            $product = $query->first();
+            // dd($product);
+            if($product['category_id'] == 1 || $product['category_id'] == 2 || $product['section_id'] == 1 || $product['section_id'] == 2 || $product['section_id'] == 3 || $product['section_id'] == 4 || $product['section_id'] == 5 || $product['section_id'] == 6 || $product['section_id'] == 7|| $product['section_id'] == 8){
+                $query->with(['Details' => function ($query) {
+                    $query->select('*');
+            }]);
+            }
+            elseif($product['category_id'] == 3 || $product['section_id'] == 9 || $product['section_id'] == 10){
+                $query->with(['MonitorDetails' => function ($query) {
+                    $query->select('*');
+            }]);
+            }
+            $product = $query->get();
+
+            return response()->json([
+                'products' => $product,
+            ]);
+    }
 
 }

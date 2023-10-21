@@ -2,50 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Class\storeImage;
+use App\Http\Requests\AdvRequest;
 use Illuminate\Http\Request;
 use App\Models\Advert;
 
 class AdverController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $adv = Advert::all();
         return response()->json([
-            'adv'=>$adv,
+            'adv' => $adv,
         ]);
     }
 
-    public function addAdv(Request $request){
-        $atter = $request->validate([
-            'image' =>['required'],
-            'type' =>['required'],
-        ]);
+    public function addAdv(AdvRequest $request)
+    {
+        $im = new storeImage();
+        $atter = $request->validated();
 
-        $imgName = time().'-'.auth()->user()->name.'.'.$request->image->extension();    
-        $ImagePath = $request->image->move(public_path('adv'),$imgName);
-
+        $imgName = $im->storeOneImageForAdv($request->image);
 
         $adv = Advert::create([
             'type' => $atter['type'],
             'image' => $imgName,
         ]);
         return response()->json([
-            'adv'=>$adv,
+            'adv' => $adv,
         ]);
     }
 
-    public function editAdv(Request $request,$adv_id){
-        $adv = Advert::where('id',$adv_id)->first();
+    public function editAdv(Request $request, $adv_id)
+    {
+        $im = new storeImage();
+        $adv = Advert::where('id', $adv_id)->first();
         $imgName;
-        if(!$adv){
+        if (!$adv) {
             return response()->json([
-            'adv'=>'adver not found',
-        ]);
+                'adv' => 'adver not found',
+            ]);
         }
-        if($request->image){
-        
-        $imgName = time().'-'.auth()->user()->name.'.'.$request->image->extension();    
-        $ImagePath = $request->image->move(public_path('adv'),$imgName);
-
+        if ($request->image) {
+            $imgName = $im->storeOneImageForAdv($request->image);
         }
         $adv->update([
             'type' => $request->input('type') ?? $adv['type'],
@@ -53,17 +52,18 @@ class AdverController extends Controller
         ]);
 
         return response()->json([
-            'adv'=>$adv,
+            'adv' => $adv,
         ]);
     }
 
-    public function deleteAdvert($adv_id){
-        $adv = Advert::where('id',$adv_id)->first();
-        
-        if(!$adv){
+    public function deleteAdvert($adv_id)
+    {
+        $adv = Advert::where('id', $adv_id)->first();
+
+        if (!$adv) {
             return response()->json([
-            'adv'=>'adver not found',
-        ]);
+                'adv' => 'adver not found',
+            ]);
         }
         return response()->json([
             'message' => $adv->delete(),

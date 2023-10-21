@@ -18,7 +18,6 @@ class FavoriteController extends Controller
             ]);
         }
 
-        // $fav = $product->favoritedBy()->where('user_id',auth()->user()->id)->first();
         $fav = Favorait::where([
             'user_id'=>auth()->user()->id,
             'product_id' =>$product_id
@@ -33,7 +32,6 @@ class FavoriteController extends Controller
             'favorite' =>$favorite
         ]);
         }
-        // return $fav;
         
         return response()->json([
             'message' => $fav->delete(),

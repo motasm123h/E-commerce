@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('R')->default(255);
             $table->integer('G')->default(171);
             $table->integer('B')->default(64);
-            $table->integer('A')->default(1);
+            $table->decimal('A')->default(1);
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ColorRequest;
 use Illuminate\Http\Request;
 use App\Models\Color;
 
@@ -14,20 +15,10 @@ class ColorChossController extends Controller
             'colors' => $colors
         ]);
     }
-    public function UpdateColor(Request $request){
-        $atter = $request->validate([
-            'R'=>['required'],
-            'G'=>['required'],
-            'B'=>['required'],
-            'A' => ['required', 'numeric', 'between:0,1'],
-        ]);
+    public function UpdateColor(ColorRequest $request){
+        $atter = $request->validated();
         $colors = Color::first();
-        $colors->update([
-            'R' => $atter['R'],
-            'G' => $atter['G'],
-            'B' => $atter['B'],
-            'A' => $atter['A'],
-        ]);
+        $colors->update($atter);
         
         return response()->json([
             'colors' => $colors

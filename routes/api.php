@@ -27,14 +27,18 @@ use App\Http\Controllers\LapTopDetailsController;
 // });
 
 
+
 Route::post("register",[AuthController::class,'register']);
 Route::post("login",[AuthController::class,'login']);
+Route::get("colorGet",[ColorChossController::class,'getColor']);
 
 Route::middleware(['auth:sanctum'])->group(function(){
 
     Route::post("logout",[AuthController::class,'logout']);
 
         Route::middleware('AdminMiddleware')->group(function(){
+            Route::post("profile/delete/{id}", [AuthController::class, 'deleteAccount']);
+
             //this to make new category
             Route::post("MakeCategory",[CategoryController::class,'MakeCategory']);
             //this to delete categories
@@ -230,11 +234,11 @@ Route::middleware(['auth:sanctum'])->group(function(){
     Route::post("ads/editAdds/{id}",[AdverController::class,'editAdv']);
     Route::post("ads/deleteAdds/{id}",[AdverController::class,'deleteAdvert']);
 
+    Route::post("profile/delete",[AuthController::class, 'deleteMyAccount']);
     
     Route::get("sreach/{req}",[SearchController::class,'index']);
 
 
 
-    Route::get("colorGet",[ColorChossController::class,'getColor']);
 
 });

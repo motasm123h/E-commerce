@@ -16,6 +16,16 @@ class CartController extends Controller
         ]);
     }
 
+    function updateProductAvailability($product)
+    {
+        if ($product->Quntity == 0) {
+            $product->Availabilty = 'Out of stock';
+        } else if ($product->Quntity > 0) {
+            $product->Availabilty = 'In Stock';
+        }
+        $product->save();
+    }
+
     public function addItemToCart(Request $request){
         $validatedData = $request->validate([
             'Quntity' => 'required|integer',
@@ -34,10 +44,7 @@ class CartController extends Controller
         }
         unset($product->discounts);
         
-
-        
         $productQuantity = $validatedData['Quntity'];
-
 
         if ($productQuantity > $product->Quntity) {
             return response()->json(['error' => 'Product quantity exceeds the available limit.'], 400);
@@ -56,6 +63,8 @@ class CartController extends Controller
             $product->update([
             'Quntity' => $product->Quntity - $validatedData['Quntity'],
             ]); 
+    
+            $this->updateProductAvailability($product);
 
             return response()->json([
                 'message' => 'Product quantity increased in the cart.',
@@ -76,12 +85,9 @@ class CartController extends Controller
         $product->update([
             'Quntity' => $product->Quntity - $validatedData['Quntity'],
         ]);
+        
+        $this->updateProductAvailability($product);
         $product->save();
-
-        if($product->Quntity == 0){
-                $product->Availabilty = 'Out of stock' ;
-                $product->save();
-        }
 
         return response()->json([
             'message' => 'Product added to cart.',
@@ -105,18 +111,11 @@ class CartController extends Controller
         $product = Product::find($cartItem->product_id);
         if ($product) {
             $product->Quntity += $cartItem->Quntity;
-            if ($product->Quntity == 0) {
-                $product->Availabilty = 'Out of stock';
-            }
-            else if ($product->Quntity > 0 ){
-                $product->Availabilty = 'In stock';
-            }
-            $product->save();
+            $this->updateProductAvailability($product);
+
         }
         $cartItem->delete();
-
         return response()->json(['message' => 'Cart item deleted successfully.']);
-   
     }
 
     public function deleteOneItemFromCart(Request $request){
@@ -135,13 +134,8 @@ class CartController extends Controller
         $product = Product::find($cartItem->product_id);
         if ($product) {
             $product->Quntity += 1;
-            if ($product->Quntity == 0) {
-                $product->Availabilty = 'Out of stock';
-            }
-            else if ($product->Quntity > 0 ){
-                $product->Availabilty = 'In stock';
-            }
-            $product->save();
+            $this->updateProductAvailability($product);
+
         }
         $cartItem->Quntity -= 1;
         $cartItem->save();

@@ -23,10 +23,6 @@ class FooterController extends Controller
             'email' => ['required','string','email'],
             'address' => ['required'],
             'description' => ['required'],
-            
-            // 'faceBook_Account' => ['required'],
-            // 'instagram_Account' => ['required'],
-            // 'twitter_Account' => ['required'],
         ]);
         $footer = Footinfo::create([
             'email' => $atter['email'],
